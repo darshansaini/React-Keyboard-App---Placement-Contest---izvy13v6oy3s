@@ -1,54 +1,43 @@
-import "../styles/App.css";
-import React, { useState, useEffect } from "react";
+import '../styles/App.css';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
-const keys = "abcdefghijklmnopqrstuvwxyz0123456789 ".split("");
+const keys = 'abcdefghijklmnopqrstuvwxyz0123456789 '.split('');
 
 const App = () => {
+	const [preview, setPreview] = useState('');
+	const [quote, setQuote] = useState('');
 
-const [previewText, setPreviewText] = useState("");
-const [quote, setQuote] = useState("");
+	const handleClick = keyValue => {
+		const updatedPreview = preview + keyValue;
+		setPreview(updatedPreview);
 
-useEffect(() => {
-if (previewText === "fourty two") {
-fetchQuote();
-} else {
-setQuote("");
-}
-}, [previewText]);
+		if (updatedPreview === 'forty two') {
+			axios.get('https://api.quotable.io/random').then(response => {
+				setQuote(response.data.content);
+			});
+		} else {
+			setQuote('');
+		}
+	};
+	const renderKeys = () => {
+		return keys.map(keyValue => (
+			<button
+				key={`key-${keyValue}`}
+				id={`key-${keyValue === ' ' ? 'space' : keyValue}`}
+				onClick={() => handleClick(keyValue)}>
+				{keyValue}
+			</button>
+		));
+	};
 
-const handleKeyPress = (key) => {
-const newPreviewText = previewText + key;
-setPreviewText(newPreviewText);
-};
-
-const fetchQuote = () => {
-fetch("https://api.quotable.io/random")
-.then((response) => response.json())
-.then((data) => {
-setQuote(data.content);
-})
-.catch((error) => {
-console.error("Error fetching quote:", error);
-});
-};
-
-return (
-<div className="keyboard">
-<div className="preview">{previewText}</div>
-{quote && <div className="quote">{quote}</div>}
-<div>
-{keys.map((key) => (
-<button
-key={key}
-id={key === " " ? "key-space" : key-${key}}
-onClick={() => handleKeyPress(key)}
->
-{key === " " ? "Space" : key.toUpperCase()}
-</button>
-))}
-</div>
-</div>
-);
+	return (
+		<div className="App">
+			<div className="preview">{preview}</div>
+			{preview === 'forty two' && <div className="quote">{quote}</div>}
+			<div className="keyboard">{renderKeys()}</div>
+		</div>
+	);
 };
 
 export default App;
